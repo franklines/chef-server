@@ -35,7 +35,7 @@ The following parameters have been added to assist you in defining a default che
 
 Set these parameters after the `-e` switch. Example below.
 ```bash
-$ sudo docker run --privileged -t -e CONTAINER_NAME='<desired name>' CHEF_USER='<username>' CHEF_PASS='<password>' CHEF_MAIL='<user@example.com>' CHEF_ORG='<example_org>' CHEF_ORGDESC='<example org>'  --name chef-server -d -p 443:443 cbuisson/chef-server
+$ sudo docker run --privileged -t -e CONTAINER_NAME='<desired name>' -e CHEF_USER='<username>' -e CHEF_PASS='<password>' -e CHEF_MAIL='<user@example.com>' -e CHEF_ORG='<example_org>' -e CHEF_ORGDESC='<example org>'  --name chef-server -d -p 443:443 cbuisson/chef-server
 ```
 
 ## Start the container
@@ -86,7 +86,7 @@ chef_server_url          'https://<chef-server>:$SSL_PORT/organizations/<organiz
 When the config.rb file is ready, you will need to get the SSL certificate file from the container to access Chef Server:
 
 ```bash
-cbuisson@server:~/.chef# knife ssl fetch
+<user>@server:~/.chef# knife ssl fetch
 WARNING: Certificates from chef-server will be fetched and placed in your trusted_cert
 directory (/home/<user>/.chef/trusted_certs).
 

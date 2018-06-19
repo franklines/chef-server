@@ -69,7 +69,8 @@ else
 fi
 
 if [[ -z $CHEF_PASS ]]; then
-  chefPass=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 32 | tr -d '\n'; echo) 
+  chefPass=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 32 | tr -d '\n'; echo)
+  echo "$chefPass" >> /etc/chef/chefUserPass.txt 
 else
   chefPass="$CHEF_PASS";
 fi
