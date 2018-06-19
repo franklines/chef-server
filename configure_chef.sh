@@ -10,8 +10,10 @@ else
 fi
 
 if [[ -z $CONTAINER_NAME ]]; then
+  chefFQDN=$(uname -n)
   echo "nginx['server_name']=\"chef-server\"" >> /etc/opscode/chef-server.rb
 else
+  chefFQDN="$CONTAINER_NAME"
   echo "nginx['server_name']=\"$CONTAINER_NAME\"" >> /etc/opscode/chef-server.rb
 fi
 
@@ -52,17 +54,47 @@ fi
 
 echo -e "\n\n$URL is available!\n"
 echo -e "\nSetting up admin user and default organization"
-chef-server-ctl user-create admin Admin User admin@myorg.com "passwd"  --filename /etc/chef/admin.pem
-chef-server-ctl org-create my_org "Default organization" --association_user admin --filename /etc/chef/my_org-validator.pem
+
+if [[ -z $CHEF_MAIL ]]; then
+  chefMail="admin@$chefFDQN";
+else
+  chefMail="$CHEF_MAIL"
+fi
+
+
+if [[ -z $CHEF_USER ]]; then
+  chefUser="admin";
+else
+  chefUser="$CHEF_USER"
+fi
+
+if [[ -z $CHEF_PASS ]]; then
+  chefPass=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 32 | tr -d '\n'; echo) 
+else
+  chefPass="$CHEF_PASS";
+fi
+
+chef-server-ctl user-create "$chefUser" "$chefUser" "User" "$chefMail" "$chefPass"  --filename "/etc/chef/$chefUser.pem"
+
+if [[ -z $CHEF_ORG ]]; then
+  chefOrg="my_org";
+else
+  chefOrg="$CHEF_ORG"
+fi
+
+if [[ -z $CHEF_ORGDESC ]]; then
+  chefOrgDesc="Default organization"
+else
+  chefOrgDesc="$CHEF_ORGDESC";
+fi
+
+chef-server-ctl org-create "$chefOrg" "$chefOrgDesc" --association_user "$chefUser" --filename "/etc/chef/$chefOrg-validator.pem"
 echo -e "\nRunning: 'chef-server-ctl install chef-manage'"...
 chef-server-ctl install chef-manage
 echo -e "\nRunning: 'chef-server-ctl reconfigure'"...
 chef-server-ctl reconfigure
 echo "{ \"error\": \"Please use https:// instead of http:// !\" }" > /var/opt/opscode/nginx/html/500.json
 sed -i "s,/503.json;,/503.json;\n    error_page 497 =503 /500.json;,g" /var/opt/opscode/nginx/etc/chef_https_lb.conf
-sed -i '$i\    location /knife_admin_key.tar.gz {\n      default_type application/zip;\n      alias /etc/chef/knife_admin_key.tar.gz;\n    }' /var/opt/opscode/nginx/etc/chef_https_lb.conf
-echo -e "\nCreating tar file with the Knife keys"
-cd /etc/chef/ && tar -cvzf knife_admin_key.tar.gz admin.pem my_org-validator.pem
 echo -e "\nRestart Nginx..."
 chef-server-ctl restart nginx
 chef-server-ctl status
