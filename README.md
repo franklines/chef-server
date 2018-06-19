@@ -24,12 +24,13 @@ This needs to be done to match the SSL certificate name with the `chef_server_ur
 
 # Setup Chef User & Organization
 The following parameters have been added to assist you in defining a default chef user and organization.
+
 | Parameter        | Description            | 
 | ------------- |:-------------:| 
 | CHEF_USER      | Define your chef username. If not set, username defaults to admin. | 
 | CHEF_PASS      | Define your chef user's password. Default generates a random password.      |  
 | CHEF_MAIL | Sets your chef user's email address. Default is admin@<server hostname>.      |   
-| CHEF_ORG | Defines the name of the organization that is created during setup. Default is set to 'my_org'.|
+| CHEF_ORG | Defines the name of the organization that is created during setup. Default is set to 'my_org'. |
 | CHEF_ORGDESC | Sets your chef organization's description. If not set, default is 'Default organization'. |
 
 Set these parameters after the `-e` switch. Example below.
